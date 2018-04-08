@@ -1,3 +1,5 @@
+"""For TF 1.2.1 """
+
 from sklearn.metrics import roc_auc_score
 import tensorflow as tf
 from util import *
@@ -31,8 +33,6 @@ class PolygraphRNN(object):
         direction:  Choice of uni- or bi-directional RNN
         lr:         Learning rate
 
-    Return:
-        Model object
     """
     def __init__(self, num_units, num_layers, rnn_type='lstm', direction='uni', lr=1e-3):
         self.inputs = None
@@ -151,7 +151,7 @@ class PolygraphRNN(object):
         ce = tf.nn.weighted_cross_entropy_with_logits(targets=self.targets,
                                                       logits=self.logits,
                                                       pos_weight=self.pos_weight)
-        # For TF 1.4+, use tf.nn.softmax_cross_entropy_with_logits_v2
+        # For TF 1.5+, use tf.nn.softmax_cross_entropy_with_logits_v2
         # ce = tf.nn.softmax_cross_entropy_with_logits(labels=self.targets,
         #                                              logits=self.logits)
         self.loss = tf.reduce_mean(ce)
@@ -206,6 +206,7 @@ class PolygraphRNN(object):
 
         Returns
             loss, accuracy, predictions
+
         """
         feed = self._add_feed_dict(X_batch, y_batch, l_batch, keep_prob, pos_weight)
 
@@ -224,8 +225,10 @@ class PolygraphRNN(object):
         Args:
             outputs: Tensor that will be subsetted.
             indices: Index to take (one for each element along axis 0 of data).
+
         Returns:
             A subsetted tensor.
+
         """
         batch_range = tf.range(tf.shape(outputs)[0])
         indices_nd = tf.stack([batch_range, indices], axis=1)
@@ -246,8 +249,6 @@ class PolygraphCRNN(PolygraphRNN):
         direction:  Choice of uni- or bi-direction RNN
         lr:         Learning rate
 
-    Return:
-        Model object
     """
     def __init__(self, num_units, num_layers, rnn_type='lstm', direction='uni', lr=1e-3):
         super(PolygraphCRNN, self).__init__(num_units,
