@@ -20,20 +20,20 @@ class Config:
     beta = 0.01
 
 
-class Polygraph(object):
+class PolygraphRNN(object):
     """
     Main model that constructs TF graph and perform training and validation
 
     Args:
-        direction:  Choice of unidiretional or bidirection RNN
         num_units:  Number of hidden units on a RNN layer
         num_layers: Number of RNN layers
+        rnn_type:   Type of RNN, e.g., LSTM, GRU or vanilla RNN
+        direction:  Choice of uni- or bi-directional RNN
         lr:         Learning rate
 
     Return:
         Model object
     """
-
     def __init__(self, num_units, num_layers, rnn_type='lstm', direction='uni', lr=1e-3):
         self.inputs = None
         self.targets = None
@@ -73,7 +73,6 @@ class Polygraph(object):
 
     def _add_prediction_op(self):
         """Construct network and prediction op"""
-
         # RNN cell definition helper
         def rnn_cell(num_units, keep_prob, rnn_type='lstm'):
             if rnn_type == 'lstm':
@@ -234,21 +233,22 @@ class Polygraph(object):
         return tf.gather_nd(outputs, indices_nd)
 
 
-class PolygraphCRNN(Polygraph):
+class PolygraphCRNN(PolygraphRNN):
     """
     Main model that constructs TF graph and perform training and validation
+
+    this model incorporates CNN as feature extractor before going into RNN
 
     Args:
         num_units:  Number of hidden units on a RNN layer
         num_layers: Number of RNN layers
-        rnn_type:   Type of RNN from 'lstm', 'gru', 'rnn', i.e., LSTM, GRU, regular RNN
-        direction:  Choice of uni-diretional or bi-direction RNN
+        rnn_type:   Type of RNN, e.g., LSTM, GRU or vanilla RNN
+        direction:  Choice of uni- or bi-direction RNN
         lr:         Learning rate
 
     Return:
         Model object
     """
-
     def __init__(self, num_units, num_layers, rnn_type='lstm', direction='uni', lr=1e-3):
         super(PolygraphCRNN, self).__init__(num_units,
                                             num_layers,
@@ -380,7 +380,7 @@ def run_experiment(model_, data, config, log_file):
     Run experiment with data and setup
 
     Args:
-        model_:   Model class pointer
+        model_:   Model class handler
         data:     Contains train/test inputs, targets, sequence lengths
         config:   Configuration parameters
         log_file: Log filename
